@@ -1,0 +1,6 @@
+For Initial set up - Adding to readme later.
+
+docker run --name mysql -e MYSQL_ROOT_PASSWORD=Test123 -d mysql:latest
+where --name argument is the container name
+change access URL ports to 8080
+Add the following Environment Variable to the container to make it initialize a database on load MYSQL_DATABASE - FinanceTracking
