@@ -8,6 +8,8 @@ verify_ssl = true
 [packages]
 sqlalchemy = "*"
 pymysql = {extras = ["rsa"], version = "*"}
+flask = "*"
+marshmallow = "*"
 
 [requires]
 python_version = "3.8"
