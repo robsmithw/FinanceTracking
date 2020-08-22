@@ -1,8 +1,6 @@
 from sqlalchemy import Column, String
-
-from .entity import Entity, Base
-
 from marshmallow import Schema, fields
+from .entity import Entity, Base
 
 class Test(Entity, Base):
     __tablename__ = 'test'

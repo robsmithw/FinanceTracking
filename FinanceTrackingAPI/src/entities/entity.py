@@ -17,7 +17,7 @@ class Entity():
     id = Column(Integer, primary_key=True)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
-    last_updated_by = Column(String(16))
+    last_updated_by = Column(String(25))
 
     def __init__(self, created_by):
         self.created_at = datetime.now()

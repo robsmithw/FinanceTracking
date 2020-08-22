@@ -10,6 +10,7 @@ sqlalchemy = "*"
 pymysql = {extras = ["rsa"], version = "*"}
 flask = "*"
 marshmallow = "*"
+flask-cors = "*"
 
 [requires]
 python_version = "3.8"
