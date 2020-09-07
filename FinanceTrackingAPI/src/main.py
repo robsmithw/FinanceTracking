@@ -1,4 +1,5 @@
-from flask import Flask, jsonify, request
+import base64, json
+from flask import Flask, jsonify, request, send_file, safe_join
 from flask_cors import CORS
 from .entities.entity import Session, engine, Base
 from .entities.test import Test, TestSchema
@@ -9,6 +10,19 @@ CORS(app)
 # generate database schema
 Base.metadata.create_all(engine)
 
+@app.route('/downloadTemplate')
+def get_template():
+    try:
+        filepath = f'D:\\Temp\\template.csv'
+        return send_file(filepath, as_attachment=True)
+        # payload = {}
+        # with open(filepath, 'rb') as f:
+        #     # payload['content'] = f.read()
+        #     payload['content'] = base64.b64encode(f.read())
+        #     payload = json.loads()
+        # return jsonify(payload['content'])
+    except FileNotFoundError:
+        return 404
 
 @app.route('/tests')
 def get_tests():
@@ -41,6 +55,6 @@ def add_test():
     new_test = TestSchema().dump(test)
     session.close()
     return jsonify(new_test), 201
-    
+
 if __name__ == "__main__":
     app.run()
