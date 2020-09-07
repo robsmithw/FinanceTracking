@@ -4,6 +4,7 @@
 
 ## Items needed for building this project
 * Python3 (3.6+)
+* Pipenv
 * Docker (mysql image)
 * NodeJS
 * Typescript (3+)
