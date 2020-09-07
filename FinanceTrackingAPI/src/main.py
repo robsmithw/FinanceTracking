@@ -1,4 +1,3 @@
-import base64, json
 from flask import Flask, jsonify, request, send_file, safe_join
 from flask_cors import CORS
 from .entities.entity import Session, engine, Base
@@ -15,12 +14,6 @@ def get_template():
     try:
         filepath = f'D:\\Temp\\template.csv'
         return send_file(filepath, as_attachment=True)
-        # payload = {}
-        # with open(filepath, 'rb') as f:
-        #     # payload['content'] = f.read()
-        #     payload['content'] = base64.b64encode(f.read())
-        #     payload = json.loads()
-        # return jsonify(payload['content'])
     except FileNotFoundError:
         return 404
 
