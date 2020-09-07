@@ -3,7 +3,7 @@ from sqlalchemy import create_engine, Column, String, Integer, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-db_url = '192.168.99.100:8080'
+db_url = '192.168.99.100:3306'
 db_name = 'FinanceTracking'
 db_user = 'root'
 db_password = 'Test123'

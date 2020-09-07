@@ -11,9 +11,8 @@
 
 ## Setting up/Running mysql image
 1) Pull latest mysql image ```docker pull mysql:latest```
-2) Run the container and initialize with root password ```docker run --name mysql -e MYSQL_ROOT_PASSWORD=Test123 -d mysql:latest``` --name will be the name of the container
-3) Change access URL ports to 8080 (docker port default is port 3306)
-4) Add Environment variable to the container to ensure database is initialized on load. **Key**: MYSQL_DATABASE - **Value**: FinanceTracking
+2) Run the container and initialize with root password ```docker run --name mysql -e MYSQL_ROOT_PASSWORD=Test123 -e MYSQL_DATABASE=FinanceTracking -d mysql:latest``` --name will be the name of the container
+3) Ensure the docker port default is port 3306
 
 ## Running FinanceTrackingAPI
 1) Move into the FinanceTrackingAPI directory
