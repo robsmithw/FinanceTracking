@@ -1,6 +1,6 @@
 # This workflows will install dependencies of python application and will stop the build if there are any Python syntax errors or undefined names
 
-name: Upload Python Package
+name: Build Python API
 
 on: [push]
 
