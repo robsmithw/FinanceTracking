@@ -7,6 +7,7 @@
 * Pipenv
 * Docker (mysql image)
 * NodeJS
+* Node Package Manager (NPM)
 * Typescript (3+)
 * Angular 9 CLI
 
@@ -18,7 +19,8 @@
 ## Running FinanceTrackingAPI
 1) Move into the FinanceTrackingAPI directory
 2) Run ```pipenv shell``` to launch subshell in virtual environment
-3) Inside the shell of the virtual environment run ```python -m src.main``` to start the flask API
+3) Inside the shell of the virtual environment run ```pipenv install``` to install dependencies
+4) Inside the shell of the virtual environment run ```python -m src.main``` to start the flask API
 
 ## Running FinanceTrackingUI
 1) Move into the FinanceTrackingUI directory
