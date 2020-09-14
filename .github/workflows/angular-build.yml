@@ -18,6 +18,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-node-    
     - name: Build
+      working-directory: ./FinanceTrackingUI
       run: |
         npm install
         npm run build
