@@ -5,7 +5,6 @@ In order to contribute please follow this process:
 1. Fork the repo on github and clone your fork.
 2. Make a new branch for your feature/bugfix. Example: `git checkout -b feature/myfeature` or `git checkout -b bugfix/bugBeingFixed`
 3. Make your changes and commit.
-   - Note: Please run `make test-style` and `make test` before making any commits to run the linters and ensure they pass build and test. This requirement allows the use of `git bisect` to find the exact commit that introduced a specific bug.
 4. ~~Ensure the proper Unit Test are being developed for any new features.~~
    - Note: This is not being enforced currently, but will be added.
    - Note: If it is a bug fix please add tests/test cases to catch regressions in the future.
