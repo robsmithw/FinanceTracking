@@ -1,6 +1,6 @@
 name: Build Angular App
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
