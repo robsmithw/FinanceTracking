@@ -1,5 +1,9 @@
 # Finance Tracking
 
+## Description
+The goal of this project is to provide users an insight into how much they're spending over a period of time along with the distribution of money that is spent on particular things (Shopping, Car Expenses, Misc., etc.) along with tracking how much money they're having come in each month.
+This information should be determined given a CSV file formatted to match the expected formatting. Most banks allow you to export a CSV report which is why I went with this. 
+
 ## Getting Started
 
 ## Items needed for building this project
@@ -26,3 +30,8 @@
 1) Move into the FinanceTrackingUI directory
 2) I personally like to run ```npm install``` to ensure I have all the packages needed for the angular project.
 3) After that run ```npm start``` or ```ng serve``` to start running the Angular application locally, refer to the [README.md](FinanceTrackingUI/README.md) in the FinanceTrackingUI directory for additional information and commands related to running the Angular application.
+
+## Future Enhancements
+**This is still a work in progress.**
+* Give users ability to enter specific information without having to put it into a CSV and upload it.
+* Currently this only accepts a specifically formatted CSV, it can be expanded to possibly accept PDF's or different formattings of CSVs.
