@@ -2,12 +2,14 @@ from datetime import datetime
 from sqlalchemy import create_engine, Column, String, Integer, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from os import getenv
 
-db_url = '192.168.99.100:3306'
+db_host = getenv('DB_HOST', '192.168.99.100')
+db_port = getenv('DB_PORT', '3306')
 db_name = 'FinanceTracking'
 db_user = 'root'
 db_password = 'Test123'
-engine = create_engine(f'mysql+pymysql://{db_user}:{db_password}@{db_url}/{db_name}')
+engine = create_engine(f'mysql+pymysql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}')
 Session = sessionmaker(bind=engine)
 
 Base = declarative_base()

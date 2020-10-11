@@ -1,0 +1,37 @@
+version: "3"
+
+services:
+  mysql:
+    image: mysql:5.7
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: Test123
+      MYSQL_DATABASE: FinanceTracking
+    restart: always
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 60s
+      interval: 10s
+      retries: 5
+
+
+  api:
+    build:
+      context: ./FinanceTrackingAPI
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - 5000:5000
+    links:
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+
+  ui:
+    build:
+      context: ./FinanceTrackingUI
+    ports:
+      - 4200:4200
