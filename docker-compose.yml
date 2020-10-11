@@ -9,12 +9,19 @@ services:
       MYSQL_ROOT_PASSWORD: Test123
       MYSQL_DATABASE: FinanceTracking
     restart: always
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 60s
+      interval: 10s
+      retries: 5
+
 
   api:
     build:
       context: ./FinanceTrackingAPI
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     ports:
       - 5000:5000
     links:
