@@ -26,7 +26,5 @@ services:
   ui:
     build:
       context: ./FinanceTrackingUI
-    depends_on:
-      - api
     ports:
       - 4200:4200
