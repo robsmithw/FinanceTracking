@@ -1,4 +1,5 @@
-from flask import Flask, jsonify, request, send_file, safe_join
+import os
+from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 from .entities.entity import Session, engine, Base
 from .entities.test import Test, TestSchema
@@ -12,7 +13,7 @@ Base.metadata.create_all(engine)
 @app.route('/downloadTemplate')
 def get_template():
     try:
-        filepath = f'D:\\Temp\\template.csv'
+        filepath = os.path.join(os.getcwd(), 'template.csv')
         return send_file(filepath, as_attachment=True)
     except FileNotFoundError:
         return 404
