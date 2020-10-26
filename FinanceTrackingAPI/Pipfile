@@ -11,6 +11,7 @@ pymysql = {extras = ["rsa"], version = "*"}
 flask = "*"
 marshmallow = "*"
 flask-cors = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.8"

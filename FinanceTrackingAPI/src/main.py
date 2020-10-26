@@ -1,4 +1,6 @@
 import os
+import sys
+import pandas as pd
 from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 from .entities.entity import Session, engine, Base
@@ -17,6 +19,23 @@ def get_template():
         return send_file(filepath, as_attachment=True)
     except FileNotFoundError:
         return 404
+
+@app.route('/processCsv', methods=['POST'])
+def post_csv_report():
+    try:
+        if 'file' not in request.files:
+            return jsonify('File not found to upload'), 400
+
+        data = request.files['file']
+        df = pd.read_csv(data)
+        amount = 0
+        for index, row in df.iterrows():
+            amount += row['amount']
+
+        return jsonify(amount)
+    except Exception as ex:
+        print(ex, file=sys.stderr)
+        return jsonify('ex'), 500
 
 @app.route('/tests')
 def get_tests():
@@ -51,4 +70,4 @@ def add_test():
     return jsonify(new_test), 201
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', debug=True)

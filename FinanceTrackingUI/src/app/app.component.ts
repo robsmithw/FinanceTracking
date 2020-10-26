@@ -5,6 +5,7 @@ import { saveAs } from 'file-saver';
 import { Test } from './models/test.model';
 import { ToastrService } from 'ngx-toastr';
 import { FileApiService } from './services/file-api.service';
+import { ViewChild } from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -17,7 +18,7 @@ export class AppComponent implements OnInit, OnDestroy {
   downloadTempSub: Subscription;
   testList: Test[];
 
-  constructor(private testApi: TestApiService, private downloadApi: FileApiService, private toastr: ToastrService){
+  constructor(private testApi: TestApiService, private fileApi: FileApiService, private toastr: ToastrService){
 
   }
 
@@ -33,7 +34,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   downloadTemplate(){
-    this.downloadTempSub = this.downloadApi.getTemplate()
+    this.downloadTempSub = this.fileApi.getTemplate()
       .subscribe(
         res => {
           saveAs(res, 'template.csv');
@@ -42,6 +43,20 @@ export class AppComponent implements OnInit, OnDestroy {
         err => {
           this.toastr.error(err);
         });
+  }
+  
+  @ViewChild('fileInput') fileInput;
+  uploadFile() {
+    const files: FileList = this.fileInput.nativeElement.files;
+    if (files.length === 0) {
+      return;
+    };
+
+    console.log(files);
+
+    this.fileApi.uploadCsv(files).subscribe((data: any) => {
+      console.log(data);
+    });
   }
 
   ngOnDestroy(){

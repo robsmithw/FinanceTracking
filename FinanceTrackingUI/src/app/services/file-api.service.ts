@@ -30,4 +30,10 @@ export class FileApiService {
         return this.httpClient.get(`${API_URL}/downloadTemplate`, {responseType : 'blob'})
             .pipe(catchError(this.errorHandler));
     }
+    uploadCsv(files): Observable<any>{
+        const formData: FormData = new FormData();
+        formData.append('file', files[0], files[0].name);
+        return this.httpClient.post(`${API_URL}/processCsv`, formData)
+            .pipe(catchError(this.errorHandler));
+    }
 }
