@@ -1,11 +1,9 @@
 import { Component, OnInit, OnDestroy} from '@angular/core';
-import { TestApiService } from './services/test-api.service';
 import { Subscription } from 'rxjs';
 import { saveAs } from 'file-saver';
-import { Test } from './models/test.model';
+import { Transaction } from './models/transaction.model';
 import { ToastrService } from 'ngx-toastr';
 import { FileApiService } from './services/file-api.service';
-import { ViewChild } from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -14,27 +12,20 @@ import { ViewChild } from '@angular/core';
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'FinanceTracking';
-  testListSub: Subscription;
-  downloadTempSub: Subscription;
-  testList: Test[];
+  transactions: Transaction[];
+  fileToProcess: File = null;
+  fileProcessed: boolean = false;
+  currentTransSaved: boolean = false;
 
-  constructor(private testApi: TestApiService, private fileApi: FileApiService, private toastr: ToastrService){
+  constructor(private fileApi: FileApiService, private toastr: ToastrService){
 
   }
 
   ngOnInit(){
-    this.testListSub = this.testApi.getTest()
-      .subscribe(res => {
-        this.testList = res;
-        this.toastr.success('Successfully retrieved test data');
-      },
-      err => {
-        this.toastr.error(err);
-      });
   }
 
   downloadTemplate(){
-    this.downloadTempSub = this.fileApi.getTemplate()
+    this.fileApi.getTemplate()
       .subscribe(
         res => {
           saveAs(res, 'template.csv');
@@ -45,23 +36,41 @@ export class AppComponent implements OnInit, OnDestroy {
         });
   }
   
-  @ViewChild('fileInput') fileInput;
   uploadFile() {
-    const files: FileList = this.fileInput.nativeElement.files;
-    if (files.length === 0) {
+    if (this.fileToProcess === null) {
+      this.fileProcessed = false;
       return;
     };
 
-    console.log(files);
+    console.log(this.fileToProcess);
 
-    this.fileApi.uploadCsv(files).subscribe((data: any) => {
+    this.fileApi.uploadCsv(this.fileToProcess).subscribe((data: Transaction[]) => {
+      this.transactions = data;
+      this.fileProcessed = true;
+      this.toastr.info("Successfully processed uploaded file.");
       console.log(data);
+      this.fileToProcess = null;
+    },
+    err => {
+      this.toastr.error(err);
     });
   }
 
+  saveTransactions() {
+    this.fileApi.saveTransactions(this.transactions).subscribe((data: any) => {
+      this.currentTransSaved = true;
+      this.toastr.success("Successfully saved all transactions shown.");
+    },
+    err => {
+      this.toastr.error(err);
+    });
+  }
+
+  handleFileInput(files: FileList) {
+    this.fileToProcess = files.item(0);
+  }
+
   ngOnDestroy(){
-    this.testListSub.unsubscribe();
-    this.downloadTempSub.unsubscribe();
   }
 
 }

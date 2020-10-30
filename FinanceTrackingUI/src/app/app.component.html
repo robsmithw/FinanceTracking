@@ -73,22 +73,39 @@
 
   <form>
     <div class="form-group">
-      <label for="fileUpload">Example file input</label>
-      <input #fileInput name="file" type="file" class="form-control-file" id="fileUpload">
+      <label for="fileUpload">File to Process:</label>
+      <input name="file" type="file" class="form-control-file" id="fileUpload" (change)="handleFileInput($event.target.files)">
     </div>
   </form>
   <button (click)="uploadFile()" class='btn btn-primary'>Upload File</button>
 
-  <div style="text-align:center">
-    <h1>Testing</h1>
-  </div>
+  <div *ngIf="fileProcessed">
+    <div style="text-align:center">
+      <h1>Processed results</h1>
+    </div>
 
-  <h2>Here are the test records created so far: </h2>
-  <ul>
-    <li *ngFor="let test of testList">
-      {{test.title}} - {{test.description}}
-    </li>
-  </ul>
+    <h2>Would you like to save the transactions gathered from the file: </h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Description</th>
+          <th scope="col">Amount</th>
+          <th scope="col">Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let trans of transactions">
+          <td>{{trans.description}}</td>
+          <td>${{trans.amount}}</td>
+          <td>{{trans.date}}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <button (click)="saveTransactions()" class='btn btn-primary' [disabled]="currentTransSaved">Confirm</button>
+    <button class='btn'>Cancel</button>
+
+  </div>
 
 </div>
 
