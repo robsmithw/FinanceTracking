@@ -6,7 +6,6 @@ import { ToastrModule } from 'ngx-toastr';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { TestApiService } from './services/test-api.service';
 import { FileApiService } from './services/file-api.service';
 
 @NgModule({
@@ -23,7 +22,7 @@ import { FileApiService } from './services/file-api.service';
       positionClass: 'toast-top-right'
     }),
   ],
-  providers: [TestApiService, FileApiService],
+  providers: [FileApiService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

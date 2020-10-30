@@ -3,12 +3,15 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { API_URL } from '../../environments/environment';
+import { Transaction } from '../models/transaction.model';
 
 @Injectable()
 export class FileApiService {
 
     constructor(private httpClient: HttpClient) {
     }
+
+    private options = { headers: new HttpHeaders().set('Content-Type', 'application/json') };
 
     public errorHandler(error: HttpErrorResponse){
         if (error.error instanceof HttpErrorResponse) {
@@ -28,6 +31,16 @@ export class FileApiService {
     // GET template file
     getTemplate(): Observable<Blob> {
         return this.httpClient.get(`${API_URL}/downloadTemplate`, {responseType : 'blob'})
+            .pipe(catchError(this.errorHandler));
+    }
+    uploadCsv(file: File): Observable<Transaction[]>{
+        const formData: FormData = new FormData();
+        formData.append('file', file, file.name);
+        return this.httpClient.post<Transaction[]>(`${API_URL}/processCsv`, formData)
+            .pipe(catchError(this.errorHandler));
+    }
+    saveTransactions(transactions: Transaction[]): Observable<Transaction[]> {
+        return this.httpClient.post<Transaction[]>(`${API_URL}/saveTransactions`, transactions, this.options)
             .pipe(catchError(this.errorHandler));
     }
 }
