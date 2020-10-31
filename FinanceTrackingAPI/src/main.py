@@ -7,6 +7,8 @@ from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 from .entities.entity import Session, engine, Base
 from .entities.transactions import Transactions, TransactionsSchema
+from .entities.transaction_types import TransactionTypes, TransactionTypesSchema
+from .entities.transaction_type_map import TransactionTypeMap, TransactionTypeMapSchema
 from .models.transaction import Transaction, TransactionEncoder
 
 app = Flask(__name__)
@@ -15,28 +17,26 @@ CORS(app)
 # generate database schema
 Base.metadata.create_all(engine)
 
-@app.route('/getTotalAmount')
+@app.route('/getTotalAmount', methods=['GET'])
 def get_total_amount():
     try:
+        total_amount = 0
+
         # fetching from the database
         session = Session()
         transactionRecords = session.query(Transactions).all()
 
-        # transforming into JSON-serializable objects
-        schema = TransactionsSchema(many=True)
-        trans = schema.dump(transactionRecords)
+        for record in transactionRecords:
+            total_amount += record.amount
 
-        # serializing as JSON
         session.close()
 
-        print(trans, file=sys.stderr)
-
-        return jsonify(trans)
+        return jsonify(str(total_amount))
     except Exception as ex:
         print(ex, file=sys.stderr)
-        return jsonify('ex'), 500
+        return jsonify(ex), 500
 
-@app.route('/downloadTemplate')
+@app.route('/downloadTemplate', methods=['GET'])
 def get_template():
     try:
         filepath = os.path.join(os.getcwd(), 'template.csv')
