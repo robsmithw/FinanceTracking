@@ -17,6 +17,14 @@ CORS(app)
 # generate database schema
 Base.metadata.create_all(engine)
 
+def load_default_values():
+    try:
+        default_types = ['Shopping', 'Work Pay', 'Misc.']
+        for types in default_types:
+            store_transaction_type(types)
+    except Exception as ex:
+        print(ex, file=sys.stderr)
+
 @app.route('/getTotalAmount', methods=['GET'])
 def get_total_amount():
     try:
@@ -126,6 +134,20 @@ def store_transaction(transaction: Transaction):
     session.close()
     return
 
+def store_transaction_type(tran_type: str):
+    transType = TransactionTypes(tran_type, True, 'System')
+
+    session = Session()
+    record = session.query(TransactionTypes).filter(TransactionTypes.active, TransactionTypes.transaction_type == tran_type.transaction_type)
+    print(record, file=sys.stderr)
+    if record is None:
+        session.add(transType)
+        session.commit()
+
+    session.close()
+    return
+
 
 if __name__ == "__main__":
+    load_default_values()
     app.run(host='0.0.0.0', debug=True)

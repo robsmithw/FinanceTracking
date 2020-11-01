@@ -3,7 +3,7 @@ from marshmallow import Schema, fields
 from .entity import Entity, Base
 
 class TransactionTypeMap(Entity, Base):
-    __tablename__ = 'transactions_type_map'
+    __tablename__ = 'transaction_type_map'
 
     keyword = Column(String(50))
     type_id = Column(Integer)
