@@ -7,7 +7,7 @@ from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 from .entities.entity import Session, engine, Base
 from .entities.transactions import Transactions, TransactionsSchema
-from .entities.transaction_types import TransactionTypes, TransactionTypesSchema
+from .entities.transaction_types import TransactionTypes, TransactionTypesSchema, TransactionTypesEncoder
 from .entities.transaction_type_map import TransactionTypeMap, TransactionTypeMapSchema
 from .models.transaction import Transaction, TransactionEncoder
 
@@ -20,10 +20,29 @@ Base.metadata.create_all(engine)
 def load_default_values():
     try:
         default_types = ['Shopping', 'Work Pay', 'Misc.']
+        trans_types = []
         for types in default_types:
-            store_transaction_type(types)
+            result = store_transaction_type(types)
+            if result != "":
+                trans_types.append(result)
+
+        if trans_types != []:
+            default_mapping = { 'Shopping' : ['Kroger','Walmart', 'Trader Joe'], 'Work Pay' : ['Servpro'] }
+            for key, value in default_mapping.items():
+                trans_id = find_id_for_transaction_type(trans_types, key)
+                if trans_id != -1 and value != []:
+                    store_transaction_type_map(value, trans_id)
+
     except Exception as ex:
         print(ex, file=sys.stderr)
+
+def find_id_for_transaction_type(trans_types, type_identifier):
+    for tran_type in trans_types:
+        print(tran_type, file=sys.stderr)
+        if tran_type.transaction_type == type_identifier:
+            return tran_type.id
+
+    return -1
 
 @app.route('/getTotalAmount', methods=['GET'])
 def get_total_amount():
@@ -135,18 +154,36 @@ def store_transaction(transaction: Transaction):
     return
 
 def store_transaction_type(tran_type: str):
+    result = ""
     transType = TransactionTypes(tran_type, True, 'System')
 
     session = Session()
-    record = session.query(TransactionTypes).filter(TransactionTypes.active, TransactionTypes.transaction_type == tran_type.transaction_type)
-    print(record, file=sys.stderr)
-    if record is None:
+    query = session.query(TransactionTypes).filter(TransactionTypes.active, TransactionTypes.transaction_type == tran_type).all()
+    schema = TransactionTypesSchema(many=True)
+    record = schema.dump(query)
+    if record == []:
+        result = json.dumps(transType, indent=4, sort_keys=True, cls=TransactionTypesEncoder)
         session.add(transType)
         session.commit()
 
     session.close()
-    return
+    return result
 
+def store_transaction_type_map(keywords: [], transaction_id: int):
+    for keyword in keywords:
+        trans_type_map = TransactionTypeMap(keyword, transaction_id, True, 'System')
+        
+        session = Session()
+
+        query = session.query(TransactionTypeMap).filter(TransactionTypeMap.active, TransactionTypeMap.keyword == trans_type_map.keyword).all()
+        schema = TransactionTypeMapSchema(many=True)
+        record = schema.dump(query)
+        if record == []:
+            session.add(trans_type_map)
+            session.commit()
+
+        session.close()
+    return
 
 if __name__ == "__main__":
     load_default_values()
