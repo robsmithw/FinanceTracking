@@ -7,7 +7,7 @@ from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 from .entities.entity import Session, engine, Base
 from .entities.transactions import Transactions, TransactionsSchema
-from .entities.transaction_types import TransactionTypes, TransactionTypesSchema, TransactionTypesEncoder
+from .entities.transaction_types import TransactionTypes, TransactionTypesSchema
 from .entities.transaction_type_map import TransactionTypeMap, TransactionTypeMapSchema
 from .models.transaction import Transaction, TransactionEncoder
 
@@ -19,7 +19,7 @@ Base.metadata.create_all(engine)
 
 def load_default_values():
     try:
-        default_types = ['Shopping', 'Work Pay', 'Misc.']
+        default_types = ['Shopping', 'Insurance', 'Misc.']
         trans_types = []
         for types in default_types:
             result = store_transaction_type(types)
@@ -27,7 +27,7 @@ def load_default_values():
                 trans_types.append(result)
 
         if trans_types != []:
-            default_mapping = { 'Shopping' : ['Kroger','Walmart', 'Trader Joe'], 'Work Pay' : ['Servpro'] }
+            default_mapping = { 'Shopping' : ['Kroger','Walmart', 'Trader Joe'], 'Insurance' : ['Allstate', 'Progressive','Farmers','Esurance','Geico'] }
             for key, value in default_mapping.items():
                 trans_id = find_id_for_transaction_type(trans_types, key)
                 if trans_id != -1 and value != []:
@@ -38,7 +38,6 @@ def load_default_values():
 
 def find_id_for_transaction_type(trans_types, type_identifier):
     for tran_type in trans_types:
-        print(tran_type, file=sys.stderr)
         if tran_type.transaction_type == type_identifier:
             return tran_type.id
 
@@ -162,9 +161,10 @@ def store_transaction_type(tran_type: str):
     schema = TransactionTypesSchema(many=True)
     record = schema.dump(query)
     if record == []:
-        result = json.dumps(transType, indent=4, sort_keys=True, cls=TransactionTypesEncoder)
         session.add(transType)
         session.commit()
+        session.refresh(transType)
+        result = transType
 
     session.close()
     return result
@@ -172,7 +172,7 @@ def store_transaction_type(tran_type: str):
 def store_transaction_type_map(keywords: [], transaction_id: int):
     for keyword in keywords:
         trans_type_map = TransactionTypeMap(keyword, transaction_id, True, 'System')
-        
+
         session = Session()
 
         query = session.query(TransactionTypeMap).filter(TransactionTypeMap.active, TransactionTypeMap.keyword == trans_type_map.keyword).all()

@@ -1,7 +1,5 @@
-from sqlalchemy import Column, String, Boolean, DateTime
+from sqlalchemy import Column, String, Boolean
 from marshmallow import Schema, fields
-from json import JSONEncoder
-from datetime import date, datetime
 from .entity import Entity, Base
 
 class TransactionTypes(Entity, Base):
@@ -22,9 +20,3 @@ class TransactionTypesSchema(Schema):
     created_at = fields.DateTime()
     updated_at = fields.DateTime()
     last_updated_by = fields.Str()
-
-class TransactionTypesEncoder(JSONEncoder):
-    def default(self, o):
-        if isinstance(o, (datetime, date)):
-            return o.isoformat()
-        return o.__dict__

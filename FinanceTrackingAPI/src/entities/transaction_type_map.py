@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime, Integer, Boolean
+from sqlalchemy import Column, String, Integer, Boolean
 from marshmallow import Schema, fields
 from .entity import Entity, Base
 
