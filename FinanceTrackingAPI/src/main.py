@@ -7,6 +7,8 @@ from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 from .entities.entity import Session, engine, Base
 from .entities.transactions import Transactions, TransactionsSchema
+from .entities.transaction_types import TransactionTypes, TransactionTypesSchema
+from .entities.transaction_type_map import TransactionTypeMap, TransactionTypeMapSchema
 from .models.transaction import Transaction, TransactionEncoder
 
 app = Flask(__name__)
@@ -15,28 +17,52 @@ CORS(app)
 # generate database schema
 Base.metadata.create_all(engine)
 
-@app.route('/getTotalAmount')
+def load_default_values():
+    try:
+        default_types = ['Shopping', 'Insurance', 'Misc.']
+        trans_types = []
+        for types in default_types:
+            result = store_transaction_type(types)
+            if result != "":
+                trans_types.append(result)
+
+        if trans_types != []:
+            default_mapping = { 'Shopping' : ['Kroger','Walmart', 'Trader Joe'], 'Insurance' : ['Allstate', 'Progressive','Farmers','Esurance','Geico'] }
+            for key, value in default_mapping.items():
+                trans_id = find_id_for_transaction_type(trans_types, key)
+                if trans_id != -1 and value != []:
+                    store_transaction_type_map(value, trans_id)
+
+    except Exception as ex:
+        print(ex, file=sys.stderr)
+
+def find_id_for_transaction_type(trans_types, type_identifier):
+    for tran_type in trans_types:
+        if tran_type.transaction_type == type_identifier:
+            return tran_type.id
+
+    return -1
+
+@app.route('/getTotalAmount', methods=['GET'])
 def get_total_amount():
     try:
+        total_amount = 0
+
         # fetching from the database
         session = Session()
         transactionRecords = session.query(Transactions).all()
 
-        # transforming into JSON-serializable objects
-        schema = TransactionsSchema(many=True)
-        trans = schema.dump(transactionRecords)
+        for record in transactionRecords:
+            total_amount += record.amount
 
-        # serializing as JSON
         session.close()
 
-        print(trans, file=sys.stderr)
-
-        return jsonify(trans)
+        return jsonify(str(total_amount))
     except Exception as ex:
         print(ex, file=sys.stderr)
-        return jsonify('ex'), 500
+        return jsonify(ex), 500
 
-@app.route('/downloadTemplate')
+@app.route('/downloadTemplate', methods=['GET'])
 def get_template():
     try:
         filepath = os.path.join(os.getcwd(), 'template.csv')
@@ -126,6 +152,39 @@ def store_transaction(transaction: Transaction):
     session.close()
     return
 
+def store_transaction_type(tran_type: str):
+    result = ""
+    transType = TransactionTypes(tran_type, True, 'System')
+
+    session = Session()
+    query = session.query(TransactionTypes).filter(TransactionTypes.active, TransactionTypes.transaction_type == tran_type).all()
+    schema = TransactionTypesSchema(many=True)
+    record = schema.dump(query)
+    if record == []:
+        session.add(transType)
+        session.commit()
+        session.refresh(transType)
+        result = transType
+
+    session.close()
+    return result
+
+def store_transaction_type_map(keywords: [], transaction_id: int):
+    for keyword in keywords:
+        trans_type_map = TransactionTypeMap(keyword, transaction_id, True, 'System')
+
+        session = Session()
+
+        query = session.query(TransactionTypeMap).filter(TransactionTypeMap.active, TransactionTypeMap.keyword == trans_type_map.keyword).all()
+        schema = TransactionTypeMapSchema(many=True)
+        record = schema.dump(query)
+        if record == []:
+            session.add(trans_type_map)
+            session.commit()
+
+        session.close()
+    return
 
 if __name__ == "__main__":
+    load_default_values()
     app.run(host='0.0.0.0', debug=True)
