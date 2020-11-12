@@ -13,6 +13,7 @@ import { FileApiService } from './services/file-api.service';
 export class AppComponent implements OnInit, OnDestroy {
   title = 'FinanceTracking';
   transactions: Transaction[];
+  transactionsRequested: Transaction[];
   fileToProcess: File = null;
   fileProcessed: boolean = false;
   currentTransSaved: boolean = false;
@@ -64,6 +65,19 @@ export class AppComponent implements OnInit, OnDestroy {
     err => {
       this.toastr.error(err);
     });
+  }
+
+  getAllTransactions(){
+    this.transactionsRequested = [];
+    this.fileApi.getAllTransactions().subscribe(
+      (data: Transaction[]) => {
+        this.toastr.success("Successfully retrieved all transactions.");
+        this.transactionsRequested = data;
+      },
+      error => {
+        this.toastr.error(error);
+      }
+    );
   }
 
   handleFileInput(files: FileList) {

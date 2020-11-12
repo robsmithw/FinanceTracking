@@ -62,10 +62,31 @@ def get_total_amount():
         print(ex, file=sys.stderr)
         return jsonify(ex), 500
 
+@app.route('/getAllTransaction', methods=['GET'])
+def get_all_transactions():
+    try:
+        all_transactions: list = []
+
+        # fetching records from database
+        session = Session()
+        transactionRecords = session.query(Transactions).all()
+
+        for record in transactionRecords:
+            curr_tran: Transaction = Transaction(record.description, str(record.amount), record.date)
+            all_transactions.append(curr_tran)
+
+        session.close()
+
+        return json.dumps(all_transactions, indent=4, sort_keys=True, cls=TransactionEncoder), 201
+
+    except Exception as ex:
+        print(ex, file=sys.stderr)
+        return jsonify(ex), 500
+
 @app.route('/downloadTemplate', methods=['GET'])
 def get_template():
     try:
-        filepath = os.path.join(os.getcwd(), 'template.csv')
+        filepath: str = os.path.join(os.getcwd(), 'template.csv')
         return send_file(filepath, as_attachment=True)
     except FileNotFoundError:
         return 404
@@ -77,8 +98,8 @@ def post_csv_report():
             return jsonify('File not found to upload'), 400
 
         data = request.files['file']
-        transactions = []
-        dateFormat = '%m/%d/%Y'
+        transactions: list = []
+        dateFormat: str = '%m/%d/%Y'
         df = pd.read_csv(data)
         amount = 0
         for index, row in df.iterrows():

@@ -78,6 +78,40 @@
     </div>
   </form>
   <button (click)="uploadFile()" class='btn btn-primary' data-toggle="modal" data-target="#exampleModal">Upload File</button>
+  
+  <div class="viewTransactions">
+    <button (click)="getAllTransactions()" class='btn btn-primary'>View all transactions</button>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Description</th>
+          <th scope="col">Amount</th>
+          <th scope="col">Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let trans of transactionsRequested">
+          <td>{{trans.description}}</td>
+          <td>${{trans.amount}}</td>
+          <td>{{trans.date}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="monthlyOverview">
+    <h3>Monthly Overview</h3>
+    <circle-progress (click)="getAllTransactions()"
+      [percent]="85"
+      [radius]="100"
+      [outerStrokeWidth]="16"
+      [innerStrokeWidth]="8"
+      [outerStrokeColor]="'#78C000'"
+      [innerStrokeColor]="'#C7E596'"
+      [animation]="true"
+      [animationDuration]="300">
+    </circle-progress>
+  </div>
 
 </div>
 

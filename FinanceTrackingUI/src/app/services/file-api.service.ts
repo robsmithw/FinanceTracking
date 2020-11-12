@@ -43,4 +43,8 @@ export class FileApiService {
         return this.httpClient.post<Transaction[]>(`${API_URL}/saveTransactions`, transactions, this.options)
             .pipe(catchError(this.errorHandler));
     }
+    getAllTransactions(): Observable<Transaction[]>{
+        return this.httpClient.get<Transaction[]>(`${API_URL}/getAllTransaction`)
+            .pipe(catchError(this.errorHandler));
+    }
 }
