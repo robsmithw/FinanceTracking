@@ -47,4 +47,8 @@ export class FileApiService {
         return this.httpClient.get<Transaction[]>(`${API_URL}/getAllTransaction`)
             .pipe(catchError(this.errorHandler));
     }
+    getMonthlyOverview(): Observable<Transaction[]>{
+        return this.httpClient.get<Transaction[]>(`${API_URL}/getMonthlyOverview`)
+            .pipe(catchError(this.errorHandler));
+    }
 }

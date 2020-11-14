@@ -14,8 +14,10 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'FinanceTracking';
   transactions: Transaction[];
   transactionsRequested: Transaction[];
+  monthlyOverviewTrans: Transaction[];
   fileToProcess: File = null;
   fileProcessed: boolean = false;
+  showOverviewTrans: boolean = false;
   currentTransSaved: boolean = false;
 
   constructor(private fileApi: FileApiService, private toastr: ToastrService){
@@ -73,6 +75,20 @@ export class AppComponent implements OnInit, OnDestroy {
       (data: Transaction[]) => {
         this.toastr.success("Successfully retrieved all transactions.");
         this.transactionsRequested = data;
+      },
+      error => {
+        this.toastr.error(error);
+      }
+    );
+  }
+
+  getMonthlyOverviewStats(){
+    this.monthlyOverviewTrans = [];
+    this.fileApi.getMonthlyOverview().subscribe(
+      (data: Transaction[]) => {
+        this.showOverviewTrans = true;
+        this.toastr.success("Successfully pulled monthly overview.");
+        this.monthlyOverviewTrans = data;
       },
       error => {
         this.toastr.error(error);

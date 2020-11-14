@@ -101,7 +101,7 @@
 
   <div class="monthlyOverview">
     <h3>Monthly Overview</h3>
-    <circle-progress (click)="getAllTransactions()"
+    <circle-progress (click)="getMonthlyOverviewStats()"
       [percent]="85"
       [radius]="100"
       [outerStrokeWidth]="16"
@@ -111,6 +111,22 @@
       [animation]="true"
       [animationDuration]="300">
     </circle-progress>
+    <table class="table" *ngIf="showOverviewTrans">
+      <thead>
+        <tr>
+          <th scope="col">Description</th>
+          <th scope="col">Amount</th>
+          <th scope="col">Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let trans of monthlyOverviewTrans">
+          <td>{{trans.description}}</td>
+          <td>${{trans.amount}}</td>
+          <td>{{trans.date}}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
 </div>

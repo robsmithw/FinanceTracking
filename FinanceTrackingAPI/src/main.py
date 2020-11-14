@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import calendar
 import pandas as pd
 from datetime import datetime
 from flask import Flask, jsonify, request, send_file
@@ -9,7 +10,7 @@ from .entities.entity import Session, engine, Base
 from .entities.transactions import Transactions, TransactionsSchema
 from .entities.transaction_types import TransactionTypes, TransactionTypesSchema
 from .entities.transaction_type_map import TransactionTypeMap, TransactionTypeMapSchema
-from .models.transaction import Transaction, TransactionEncoder
+from .models.transaction_dto import TransactionDto, TransactionDtoEncoder
 
 app = Flask(__name__)
 CORS(app)
@@ -27,7 +28,7 @@ def load_default_values():
                 trans_types.append(result)
 
         if trans_types != []:
-            default_mapping = { 'Shopping' : ['Kroger','Walmart', 'Trader Joe'], 'Insurance' : ['Allstate', 'Progressive','Farmers','Esurance','Geico'] }
+            default_mapping = { 'Shopping' : ['Kroger', 'Walmart', 'Trader Joe'], 'Insurance' : ['Allstate', 'Progressive', 'Farmers', 'Esurance', 'Geico'] }
             for key, value in default_mapping.items():
                 trans_id = find_id_for_transaction_type(trans_types, key)
                 if trans_id != -1 and value != []:
@@ -72,12 +73,12 @@ def get_all_transactions():
         transactionRecords = session.query(Transactions).all()
 
         for record in transactionRecords:
-            curr_tran: Transaction = Transaction(record.description, str(record.amount), record.date)
+            curr_tran: TransactionDto = TransactionDto(record.description, str(record.amount), record.date)
             all_transactions.append(curr_tran)
 
         session.close()
 
-        return json.dumps(all_transactions, indent=4, sort_keys=True, cls=TransactionEncoder), 201
+        return json.dumps(all_transactions, indent=4, sort_keys=True, cls=TransactionDtoEncoder), 201
 
     except Exception as ex:
         print(ex, file=sys.stderr)
@@ -104,11 +105,11 @@ def post_csv_report():
         amount = 0
         for index, row in df.iterrows():
             formattedDate = datetime.strptime(row['Date'].strip(), dateFormat) #strip used because leading 0's are replaced by spaces
-            trans = Transaction(row['Description'], row['Amount'], formattedDate)
+            trans = TransactionDto(row['Description'], row['Amount'], formattedDate)
             #store_transaction(trans)
             transactions.append(trans)
 
-        return json.dumps(transactions, indent=4, sort_keys=True, cls=TransactionEncoder), 200
+        return json.dumps(transactions, indent=4, sort_keys=True, cls=TransactionDtoEncoder), 200
     except Exception as ex:
         print(ex, file=sys.stderr)
         return jsonify(ex), 500
@@ -122,11 +123,11 @@ def post_transactions():
 
         all_trans = []
         for tran in transactions:
-            curr_tran = Transaction(tran['description'], tran['amount'], tran['date'])
+            curr_tran = TransactionDto(tran['description'], tran['amount'], tran['date'])
             store_transaction(curr_tran)
             all_trans.append(curr_tran)
 
-        return json.dumps(all_trans, indent=4, sort_keys=True, cls=TransactionEncoder), 201
+        return json.dumps(all_trans, indent=4, sort_keys=True, cls=TransactionDtoEncoder), 201
     except Exception as ex:
         print(ex, file=sys.stderr)
         return jsonify(ex), 500
@@ -163,7 +164,7 @@ def post_transactions():
 #     session.close()
 #     return jsonify(new_test), 201
 
-def store_transaction(transaction: Transaction):
+def store_transaction(transaction: TransactionDto):
     transactionEntry = Transactions(transaction.description, transaction.amount, transaction.date, 'Upload')
 
     session = Session()
@@ -205,6 +206,37 @@ def store_transaction_type_map(keywords: [], transaction_id: int):
 
         session.close()
     return
+
+@app.route('/getMonthlyOverview', methods=['GET'])
+def get_monthly_overview_stats():
+    try:
+        current_month: int = datetime.now().month
+        current_year: int = datetime.now().year
+        _, days_in_month = calendar.monthrange(current_year, current_month)
+        begin_month: datetime = datetime(current_year, current_month, 1)
+        end_month: datetime = datetime(current_year, current_month, days_in_month)
+        transactions_for_month = get_transactions_from_date_range(begin_month, end_month)
+        return jsonify(transactions_for_month), 200
+
+    except Exception as ex:
+        print(ex, file=sys.stderr)
+        return jsonify(ex), 500
+
+def get_transactions_from_date_range(begin_date: datetime, end_date: datetime):
+    try:
+        transactions = []
+
+        session = Session()
+        query = session.query(Transactions).filter(Transactions.date.between(begin_date, end_date)).all()
+        schema = TransactionsSchema(many=True)
+        records = schema.dump(query)
+        transactions += records
+
+        return transactions
+
+    except Exception as ex:
+        print(ex, file=sys.stderr)
+        return ex
 
 if __name__ == "__main__":
     load_default_values()
